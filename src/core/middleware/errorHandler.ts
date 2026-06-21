@@ -1,5 +1,5 @@
 import type { NextFunction, Request, Response } from "express";
-import { ErrorCode, LessError, ThrowException } from "../errors/custom-error-handler";
+import { ErrorCode, HttpError, ThrowException } from "../errors/custom-error-handler";
 
 export function errorHandler(
   err: unknown,
@@ -27,7 +27,7 @@ export function errorHandler(
 
   console.error("Unexpected error:", err);
 
-  const internalError = LessError.internalServerError();
+  const internalError = HttpError.internalServerError();
   res.status(internalError.statusCode).json({
     status: internalError.status,
     message: internalError.message,

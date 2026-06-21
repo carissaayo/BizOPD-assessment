@@ -101,7 +101,7 @@ const ErrorStatusCodes: Record<ErrorCode, number> = {
   [ErrorCode.PRECONDITION_FAILED]: 412,
 };
 
-export class LessError {
+export class HttpError {
   static badRequest(message?: string, data?: unknown) {
     return new ThrowException(
       message ?? ErrorMessages[ErrorCode.BAD_REQUEST],
