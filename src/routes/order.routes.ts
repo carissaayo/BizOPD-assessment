@@ -1,16 +1,24 @@
 import { Router } from "express";
 import {
   createOrderHandler,
+  getOrdersHandler,
   updateOrderStageHandler,
 } from "../controllers/order.controller";
 import { validate } from "../core/middleware/validate";
 import {
   createOrderBodySchema,
   orderIdParamsSchema,
+  searchOrdersQuerySchema,
   updateOrderStageBodySchema,
 } from "../validation/order.schemas";
 
 const router = Router();
+
+router.get(
+  "/",
+  validate({ query: searchOrdersQuerySchema }),
+  getOrdersHandler,
+);
 
 router.post(
   "/",
@@ -19,7 +27,7 @@ router.post(
 );
 
 router.patch(
-  "/:id",
+  "/:id/stage",
   validate({
     params: orderIdParamsSchema,
     body: updateOrderStageBodySchema,

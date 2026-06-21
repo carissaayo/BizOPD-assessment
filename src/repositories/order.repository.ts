@@ -1,5 +1,10 @@
 import type { Stage } from "../core/constants/stages";
 import {
+  DBQuery,
+  DBQueryCount,
+  type QueryString,
+} from "../core/db/db-query";
+import {
   OrderModel,
   type IOrder,
   type OrderDocument,
@@ -28,8 +33,12 @@ export type SearchOrdersResult = {
   limit: number;
 };
 
-function escapeRegex(value: string): string {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+function toQueryString(options: SearchOrdersOptions): QueryString {
+  return {
+    search: options.search,
+    page: String(options.page),
+    limit: String(options.limit),
+  };
 }
 
 function toOrderResponse(order: OrderDocument) {
@@ -52,25 +61,21 @@ async function findById(id: string): Promise<OrderDocument | null> {
 async function search(
   options: SearchOrdersOptions,
 ): Promise<SearchOrdersResult> {
-  const { search, page, limit } = options;
-  const filter: OrderFilter = {};
+  const queryString = toQueryString(options);
+  const limit = Math.min(options.limit, 100);
 
-  if (search) {
-    const regex = new RegExp(escapeRegex(search), "i");
-    filter.$or = [{ customerName: regex }, { phone: regex }];
-  }
-
-  const skip = (page - 1) * limit;
+  const dbQuery = new DBQuery(OrderModel.find(), queryString);
+  dbQuery.filter().sort().limitFields().paginate();
 
   const [orders, total] = await Promise.all([
-    OrderModel.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit),
-    OrderModel.countDocuments(filter),
+    dbQuery.query,
+    new DBQueryCount(OrderModel.find(), queryString).countDocuments(),
   ]);
 
   return {
     orders: orders.map(toOrderResponse),
     total,
-    page,
+    page: dbQuery.page,
     limit,
   };
 }
