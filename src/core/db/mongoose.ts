@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
-import { env } from "../config/env";
-import { OrderModel } from "../models/order.model";
+import { env } from "../../config/env";
+import { OrderModel } from "../../models/order.model";
 
 const MAX_RETRIES = 5;
 const RETRY_DELAY_MS = 5000;

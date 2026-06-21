@@ -1,5 +1,5 @@
 import Redis from "ioredis";
-import { env } from "../config/env";
+import { env } from "../../config/env";
 
 const MAX_RETRIES = 5;
 const RETRY_DELAY_MS = 5000;

@@ -1,6 +1,6 @@
 import express from "express";
-import { getRedis, isRedisConnected } from "./cache/redis";
-import { isMongoConnected } from "./db/mongoose";
+import { getRedis, isRedisConnected } from "./core/cache/redis";
+import { isMongoConnected } from "./core/db/mongoose";
 
 export function createApp(): express.Application {
   const app = express();
