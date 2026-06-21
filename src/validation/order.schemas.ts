@@ -15,7 +15,9 @@ export const createOrderBodySchema = z.strictObject({
   customerName: nonEmptyString("Customer name"),
   phone: phoneSchema,
   product: nonEmptyString("Product"),
-  stage: z.literal(INITIAL_STAGE).default(INITIAL_STAGE),
+  stage: z.literal(INITIAL_STAGE, {
+    error: `Stage can only be "${INITIAL_STAGE}" while creating an order`,
+  }).default(INITIAL_STAGE),
 });
 
 export const updateOrderStageBodySchema = z.strictObject({
