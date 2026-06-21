@@ -1,3 +1,13 @@
-// Async handler wrapper — implemented in task 4
+import type { NextFunction, Request, Response, RequestHandler } from "express";
 
-export {};
+type AsyncRequestHandler = (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => Promise<void>;
+
+export function asyncHandler(fn: AsyncRequestHandler): RequestHandler {
+  return (req, res, next) => {
+    Promise.resolve(fn(req, res, next)).catch(next);
+  };
+}

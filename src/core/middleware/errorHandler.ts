@@ -1,3 +1,36 @@
-// Central error handler — implemented in task 4
+import type { NextFunction, Request, Response } from "express";
+import { ErrorCode, LessError, ThrowException } from "../errors/AppError";
 
-export {};
+export function errorHandler(
+  err: unknown,
+  _req: Request,
+  res: Response,
+  _next: NextFunction,
+): void {
+  if (err instanceof ThrowException) {
+    const body: Record<string, unknown> = {
+      status: err.status,
+      message: err.message,
+    };
+
+    if (err.errorCode) {
+      body.errorCode = err.errorCode;
+    }
+
+    if (err.data) {
+      body.data = err.data;
+    }
+
+    res.status(err.statusCode).json(body);
+    return;
+  }
+
+  console.error("Unexpected error:", err);
+
+  const internalError = LessError.internalServerError();
+  res.status(internalError.statusCode).json({
+    status: internalError.status,
+    message: internalError.message,
+    errorCode: ErrorCode.INTERNAL_SERVER_ERROR,
+  });
+}
