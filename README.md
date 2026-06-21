@@ -67,7 +67,96 @@ The server runs at `http://localhost:3000` by default.
 curl http://localhost:3000/health
 ```
 
-## API Endpoints
+### Port already in use (Windows)
+
+If `npm run dev` fails with `EADDRINUSE` on port 3000:
+
+```powershell
+netstat -ano | findstr :3000
+taskkill /PID <pid> /F
+```
+
+Replace `<pid>` with the PID from the `netstat` output.
+
+## Deploy on Render
+
+Render cannot run Docker Compose. Use **cloud MongoDB** and **cloud Redis** instead of `localhost`.
+
+### 1. MongoDB Atlas (free)
+
+1. Go to [MongoDB Atlas](https://www.mongodb.com/cloud/atlas) and create a free cluster.
+2. **Database Access** — create a database user (username + password).
+3. **Network Access** — add `0.0.0.0/0` (allow from anywhere) so Render can connect.
+4. **Connect** → Drivers → copy the connection string.
+5. Replace `<password>` and set the database name, e.g.:
+
+   ```
+   mongodb+srv://myuser:mypassword@cluster0.xxxxx.mongodb.net/bizopd?retryWrites=true&w=majority
+   ```
+
+> **Common mistake:** Using `mongodb://localhost:27017/bizopd` on Render. That only works on your machine.
+
+### 2. Redis on Render
+
+1. In the [Render Dashboard](https://dashboard.render.com), click **New +** → **Redis** (or **Key Value**).
+2. Create a free instance.
+3. Copy the **Internal Redis URL** (use internal URL if Redis and API are on Render).
+
+Alternatively, use [Upstash Redis](https://upstash.com/) (free tier) and paste its URL as `REDIS_URL`.
+
+### 3. Deploy the web service
+
+**Option A — Blueprint (`render.yaml`)**
+
+1. Push this repo to GitHub.
+2. Render → **New +** → **Blueprint** → connect the repo.
+3. Set these environment variables when prompted:
+   - `MONGODB_URI` — Atlas connection string from step 1
+   - `REDIS_URL` — Redis URL from step 2
+
+**Option B — Manual**
+
+1. Render → **New +** → **Web Service** → connect the repo.
+2. Settings:
+   - **Runtime:** Node
+   - **Build command:** `npm install && npm run build`
+   - **Start command:** `npm start`
+   - **Health check path:** `/health`
+3. Environment variables:
+
+   | Key | Value |
+   |-----|-------|
+   | `NODE_ENV` | `production` |
+   | `TRUST_PROXY` | `true` |
+   | `ENABLE_HTTPS_REDIRECT` | `true` |
+   | `MONGODB_URI` | Your Atlas connection string |
+   | `REDIS_URL` | Your Redis connection string |
+   | `CORS_ORIGIN` | `*` or your frontend URL |
+
+Render sets `PORT` automatically — do not hardcode it.
+
+### 4. Verify deployment
+
+```bash
+curl https://<your-app>.onrender.com/health
+```
+
+Expected response when both services are connected:
+
+```json
+{ "status": "ok", "mongo": "connected", "redis": "connected" }
+```
+
+### Render troubleshooting
+
+| Error | Fix |
+|-------|-----|
+| `ECONNREFUSED` / MongoDB timeout | Use Atlas `mongodb+srv://` URL, not `localhost` |
+| `Server selection timed out` | Add `0.0.0.0/0` to Atlas Network Access |
+| Authentication failed | Check username/password in connection string (URL-encode special chars) |
+| Redis connection failed | Use Render internal Redis URL or a valid Upstash URL |
+| `EADDRINUSE` locally | Kill the old process on port 3000 (see above) |
+
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
