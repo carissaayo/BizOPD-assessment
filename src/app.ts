@@ -6,6 +6,7 @@ import {
   notFoundHandler,
 } from "./core/middleware/errorHandler";
 import { setupSecurityMiddleware } from "./core/middleware/security";
+import routes from "./routes";
 
 export function createApp(): express.Application {
   const app = express();
@@ -33,7 +34,7 @@ export function createApp(): express.Application {
     });
   });
 
-  // Mount API routes here before notFoundHandler.
+  app.use(routes);
 
   app.use(notFoundHandler);
   app.use(errorHandler);
