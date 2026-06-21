@@ -5,9 +5,12 @@ import {
   errorHandler,
   notFoundHandler,
 } from "./core/middleware/errorHandler";
+import { setupSecurityMiddleware } from "./core/middleware/security";
 
 export function createApp(): express.Application {
   const app = express();
+
+  setupSecurityMiddleware(app);
 
   app.get("/health", async (_req, res) => {
     const mongoReady = isMongoConnected();
@@ -29,6 +32,8 @@ export function createApp(): express.Application {
       redis: redisReady ? "connected" : "disconnected",
     });
   });
+
+  // Mount API routes here before notFoundHandler.
 
   app.use(notFoundHandler);
   app.use(errorHandler);
