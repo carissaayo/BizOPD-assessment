@@ -1,7 +1,10 @@
 import express from "express";
 import { getRedis, isRedisConnected } from "./core/cache/redis";
 import { isMongoConnected } from "./core/db/mongoose";
-import { errorHandler } from "./core/middleware/errorHandler";
+import {
+  errorHandler,
+  notFoundHandler,
+} from "./core/middleware/errorHandler";
 
 export function createApp(): express.Application {
   const app = express();
@@ -27,6 +30,7 @@ export function createApp(): express.Application {
     });
   });
 
+  app.use(notFoundHandler);
   app.use(errorHandler);
 
   return app;

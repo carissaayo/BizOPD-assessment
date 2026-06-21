@@ -3,12 +3,15 @@ import { createApp } from "./app";
 import { connectRedis, disconnectRedis } from "./core/cache/redis";
 import { env } from "./config/env";
 import { connectMongo, disconnectMongo } from "./core/db/mongoose";
+import { setupUnhandledExceptionHandlers } from "./core/middleware/errorHandler";
 
 const SHUTDOWN_TIMEOUT_MS = 10_000;
 
 let isShuttingDown = false;
 
 async function bootstrap(): Promise<void> {
+  setupUnhandledExceptionHandlers();
+
   await connectMongo();
 
   await connectRedis();
