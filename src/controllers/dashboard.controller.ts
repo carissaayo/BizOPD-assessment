@@ -1,3 +1,6 @@
-// Dashboard controller — implemented in task 7
+import { Controller } from "../core/handlers/controller";
+import { getDashboard } from "../services/dashboard/dashboard.service";
 
-export {};
+export const getDashboardHandler = Controller(async () => {
+  return getDashboard();
+});

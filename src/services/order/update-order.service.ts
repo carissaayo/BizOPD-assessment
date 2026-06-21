@@ -4,7 +4,7 @@ import {
 import { HttpError } from "../../core/errors/custom-error-handler";
 import { orderRepository } from "../../repositories/order.repository";
 import type { UpdateOrderStageBody } from "../../validation/order.schemas";
-import { invalidateDashboardCache } from "../dashboard.service";
+import { invalidateDashboardCache } from "../dashboard/dashboard.service";
 
 export async function updateOrderStage(
   orderId: string,
