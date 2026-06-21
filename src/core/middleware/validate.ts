@@ -19,6 +19,30 @@ function formatZodError(error: z.ZodError): string {
     .join("; ");
 }
 
+function assignParsedRequestProperty(
+  req: Request,
+  property: RequestProperty,
+  data: unknown,
+): void {
+  if (property === "query") {
+    const query = req.query as Record<string, unknown>;
+
+    for (const key of Object.keys(query)) {
+      delete query[key];
+    }
+
+    Object.assign(query, data);
+    return;
+  }
+
+  if (property === "params") {
+    Object.assign(req.params, data);
+    return;
+  }
+
+  req.body = data;
+}
+
 function parseRequestProperty(
   req: Request,
   property: RequestProperty,
@@ -35,7 +59,7 @@ function parseRequestProperty(
     });
   }
 
-  Object.assign(req, { [property]: result.data });
+  assignParsedRequestProperty(req, property, result.data);
 }
 
 export function validate(schemas: ValidationSchemas): RequestHandler {

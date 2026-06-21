@@ -6,13 +6,13 @@ import express, {
   type Request,
   type Response,
 } from "express";
-import mongoSanitize from "express-mongo-sanitize";
 import rateLimit from "express-rate-limit";
 import helmet from "helmet";
 import hpp from "hpp";
 import pinoHttp from "pino-http";
 import { env } from "../../config/env";
 import { securityConfig } from "../../config/security";
+import { createMongoSanitizeMiddleware } from "./mongoSanitize";
 
 const httpsRedirect = (
   req: Request,
@@ -46,7 +46,7 @@ const corsMiddleware = cors(securityConfig.cors.options);
 const hppMiddleware = hpp(securityConfig.hpp.options);
 const limiter = rateLimit(securityConfig.rateLimit.options);
 const compressionMiddleware = compression(securityConfig.compression.options);
-const mongoSanitizeMiddleware = mongoSanitize(
+const mongoSanitizeMiddleware = createMongoSanitizeMiddleware(
   securityConfig.mongoSanitize.options,
 );
 
