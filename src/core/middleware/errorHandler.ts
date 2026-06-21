@@ -1,5 +1,5 @@
 import type { NextFunction, Request, Response } from "express";
-import { ErrorCode, LessError, ThrowException } from "../errors/AppError";
+import { ErrorCode, LessError, ThrowException } from "../errors/custom-error-handler";
 
 export function errorHandler(
   err: unknown,
